@@ -65,13 +65,13 @@ func (s *ClaimsService) ValidateUserAccess(ctx context.Context, userID string, c
 }
 
 // applyIDTokenClaims applies the claims of a user to the ID token claims in the session based on the requested scopes.
-func (s *ClaimsService) applyIDTokenClaims(ctx context.Context, session *Session, scopes fosite.Arguments) error {
+func (s *ClaimsService) applyIDTokenClaims(ctx context.Context, session *Session, client model.OidcClient, scopes fosite.Arguments) error {
 	userID := session.Subject
 	if userID == "" {
 		return nil
 	}
 
-	claims, err := s.GetUserClaims(ctx, userID, scopes)
+	claims, err := s.GetUserClaims(ctx, userID, client, scopes)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func applyUserClaimsToIDToken(session *Session, userID string, claims map[string
 
 // GetUserClaims retrieves the claims for a user based on the requested scopes. It includes standard claims
 // like "sub" and "email" as well as any custom claims defined for the user or their groups.
-func (s *ClaimsService) GetUserClaims(ctx context.Context, userID string, scopes []string) (map[string]any, error) {
+func (s *ClaimsService) GetUserClaims(ctx context.Context, userID string, client model.OidcClient, scopes []string) (map[string]any, error) {
 	db := dbFromContext(ctx, s.db)
 
 	var user model.User
@@ -155,11 +155,21 @@ func (s *ClaimsService) GetUserClaims(ctx context.Context, userID string, scopes
 	}
 
 	if slices.Contains(scopes, "groups") {
-		userGroups := make([]string, len(user.UserGroups))
-		for i, group := range user.UserGroups {
-			userGroups[i] = group.Name
+		groups := make([]string, 0)
+
+		if client.GroupsClaimFiltered {
+			for _, userGroup := range user.UserGroups {
+				if slices.ContainsFunc(client.AllowedUserGroups, func(allowedUserGroup model.UserGroup) bool { return allowedUserGroup.ID == userGroup.ID }) {
+					groups = append(groups, userGroup.Name)
+				}
+			}
+		} else {
+			for _, group := range user.UserGroups {
+				groups = append(groups, group.Name)
+			}
+
 		}
-		claims["groups"] = userGroups
+		claims["groups"] = groups
 	}
 
 	return claims, nil

@@ -44,7 +44,9 @@ func (h *tokenHandler) token(c *gin.Context) {
 		return
 	}
 
-	if client, ok := accessRequest.GetClient().(Client); ok {
+	client, ok := accessRequest.GetClient().(Client)
+
+	if ok {
 		// Re-validate the resource owner on every user-bound grant.
 		err := h.claimsService.ValidateUserAccess(ctx, requestSession.Subject, client)
 		if err != nil {
@@ -86,7 +88,7 @@ func (h *tokenHandler) token(c *gin.Context) {
 		}
 	}
 
-	err = h.claimsService.applyIDTokenClaims(ctx, requestSession, accessRequest.GetGrantedScopes())
+	err = h.claimsService.applyIDTokenClaims(ctx, requestSession, client.OidcClient, accessRequest.GetGrantedScopes())
 	if err != nil {
 		slog.ErrorContext(ctx, "Failed to apply ID token claims", "error", err)
 		h.provider.WriteAccessError(ctx, c.Writer, accessRequest, err)
@@ -96,7 +98,6 @@ func (h *tokenHandler) token(c *gin.Context) {
 	// The client credentials grant has no resource owner, so no subject is ever set. Assign a
 	// stable synthetic subject so the issued JWT access token still carries a subclaim.
 	if requestSession.Subject == "" {
-		client, ok := accessRequest.GetClient().(Client)
 		if ok && accessRequest.GetGrantTypes().Has(string(fosite.GrantTypeClientCredentials)) {
 			requestSession.Subject = "client-" + client.GetID()
 		}

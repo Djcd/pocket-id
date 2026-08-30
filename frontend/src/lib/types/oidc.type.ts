@@ -62,6 +62,7 @@ export type OidcClient = OidcClientMetaData & {
 	credentials?: OidcClientCredentials;
 	launchURL?: string;
 	isGroupRestricted: boolean;
+	GroupsClaimFiltered: boolean;
 	pkceSupported: boolean;
 	accessTokenDurationMinutes: number;
 	refreshTokenDurationMinutes: number;

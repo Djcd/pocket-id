@@ -195,7 +195,7 @@ func (s *authorizationService) authorize(ctx context.Context, input authorizeInp
 		return result, nil
 	}
 
-	err = s.claimsService.applyIDTokenClaims(ctx, result.Session, input.requester.GetGrantedScopes())
+	err = s.claimsService.applyIDTokenClaims(ctx, result.Session, client.OidcClient, input.requester.GetGrantedScopes())
 	if err != nil {
 		return authorizationResult{}, err
 	}

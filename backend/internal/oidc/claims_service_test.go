@@ -112,13 +112,13 @@ func TestClaimsServiceGetUserClaims(t *testing.T) {
 	require.NoError(t, db.Model(&user).Association("UserGroups").Append(&group))
 
 	t.Run("openid only releases sub", func(t *testing.T) {
-		claims, err := service.GetUserClaims(t.Context(), userID, []string{"openid"})
+		claims, err := service.GetUserClaims(t.Context(), userID, model.OidcClient{}, []string{"openid"})
 		require.NoError(t, err)
 		require.Equal(t, map[string]any{"sub": userID}, claims)
 	})
 
 	t.Run("email scope releases email claims", func(t *testing.T) {
-		claims, err := service.GetUserClaims(t.Context(), userID, []string{"openid", "email"})
+		claims, err := service.GetUserClaims(t.Context(), userID, model.OidcClient{}, []string{"openid", "email"})
 		require.NoError(t, err)
 		require.Equal(t, userID, claims["sub"])
 		require.Equal(t, "tim@example.com", claims["email"])
@@ -128,13 +128,13 @@ func TestClaimsServiceGetUserClaims(t *testing.T) {
 	})
 
 	t.Run("groups scope releases group names", func(t *testing.T) {
-		claims, err := service.GetUserClaims(t.Context(), userID, []string{"groups"})
+		claims, err := service.GetUserClaims(t.Context(), userID, model.OidcClient{}, []string{"groups"})
 		require.NoError(t, err)
 		require.Equal(t, []string{"developers"}, claims["groups"])
 	})
 
 	t.Run("profile scope releases profile and custom claims", func(t *testing.T) {
-		claims, err := service.GetUserClaims(t.Context(), userID, []string{"profile"})
+		claims, err := service.GetUserClaims(t.Context(), userID, model.OidcClient{}, []string{"profile"})
 		require.NoError(t, err)
 		require.Equal(t, "Tim", claims["given_name"])
 		require.Equal(t, "Cook", claims["family_name"])
@@ -166,7 +166,7 @@ func TestClaimsServiceAppliesSigningAlgToIDTokenHeader(t *testing.T) {
 			session := NewEmptySession()
 			session.Subject = "alg-user"
 
-			require.NoError(t, service.applyIDTokenClaims(t.Context(), session, fosite.Arguments{"openid"}))
+			require.NoError(t, service.applyIDTokenClaims(t.Context(), session, model.OidcClient{}, fosite.Arguments{"openid"}))
 			require.Equal(t, alg.String(), session.IDTokenHeaders().Get("alg"))
 		})
 	}

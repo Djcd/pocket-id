@@ -27,6 +27,7 @@ type OidcClientDto struct {
 	SkipConsent                         bool                     `json:"skipConsent"`
 	Credentials                         OidcClientCredentialsDto `json:"credentials"`
 	IsGroupRestricted                   bool                     `json:"isGroupRestricted"`
+	GroupsClaimFiltered                 bool                     `json:"GroupsClaimFiltered"`
 	PkceSupported                       bool                     `json:"pkceSupported,omitempty"`
 	AccessTokenDurationMinutes          int64                    `json:"accessTokenDurationMinutes"`
 	RefreshTokenDurationMinutes         int64                    `json:"refreshTokenDurationMinutes"`
@@ -59,6 +60,7 @@ type OidcClientUpdateDto struct {
 	LogoURL                             *string                  `json:"logoUrl"`
 	DarkLogoURL                         *string                  `json:"darkLogoUrl"`
 	IsGroupRestricted                   bool                     `json:"isGroupRestricted"`
+	GroupsClaimFiltered                 bool                     `json:"GroupsClaimFiltered"`
 	AccessTokenDurationMinutes          int64                    `json:"accessTokenDurationMinutes" binding:"omitempty,token_duration"`
 	RefreshTokenDurationMinutes         int64                    `json:"refreshTokenDurationMinutes" binding:"omitempty,token_duration"`
 }

@@ -60,6 +60,7 @@ type OidcClient struct {
 	Credentials                         OidcClientCredentials
 	LaunchURL                           *string
 	IsGroupRestricted                   bool           `sortable:"true" filterable:"true"`
+	GroupsClaimFiltered                 bool           `sortable:"true" filterable:"true`
 	PkceSupported                       bool           `sortable:"true" filterable:"true"`
 	ClientType                          OidcClientType `gorm:"default:standard" sortable:"true" filterable:"true"`
 	MetadataExpiresAt                   *datatype.DateTime

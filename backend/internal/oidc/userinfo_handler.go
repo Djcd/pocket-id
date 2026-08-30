@@ -65,7 +65,8 @@ func (h *userInfoHandler) userInfo(c *gin.Context) {
 		return
 	}
 
-	claims, err := h.claimsService.GetUserClaims(ctx, session.GetSubject(), accessRequest.GetGrantedScopes())
+	client, _ := accessRequest.GetClient().(Client)
+	claims, err := h.claimsService.GetUserClaims(ctx, session.GetSubject(), client.OidcClient, accessRequest.GetGrantedScopes())
 	if err != nil {
 		// A token whose subject no longer resolves to a user is an authentication failure, not a missing resource
 		if errors.Is(err, gorm.ErrRecordNotFound) {

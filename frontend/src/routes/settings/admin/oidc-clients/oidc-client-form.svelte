@@ -54,6 +54,7 @@
 		requiresPushedAuthorizationRequests:
 			existingClient?.requiresPushedAuthorizationRequests || false,
 		skipConsent: existingClient?.skipConsent || false,
+		GroupsClaimFiltered: existingClient?.GroupsClaimFiltered || false,
 		launchURL: existingClient?.launchURL || '',
 		logoUrl: '',
 		darkLogoUrl: '',
@@ -82,6 +83,7 @@
 		requiresReauthentication: z.boolean(),
 		requiresPushedAuthorizationRequests: z.boolean(),
 		skipConsent: z.boolean(),
+		GroupsClaimFiltered: z.boolean(),
 		launchURL: optionalUrl,
 		logoUrl: optionalUrl,
 		darkLogoUrl: optionalUrl,
@@ -261,6 +263,12 @@
 			label={m.skip_consent()}
 			description={m.skip_consent_description()}
 			bind:checked={$inputs.skipConsent.value}
+		/>
+		<SwitchWithLabel
+			id="restrict-groups-claim"
+			label={m.groups_claim_filtered()}
+			description={m.groups_claim_filtered_description()}
+			bind:checked={$inputs.GroupsClaimFiltered.value}
 		/>
 	</div>
 	<div class="mt-7 w-full md:w-1/2">
