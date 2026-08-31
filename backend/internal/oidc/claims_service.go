@@ -155,22 +155,32 @@ func (s *ClaimsService) GetUserClaims(ctx context.Context, userID string, client
 	}
 
 	if slices.Contains(scopes, "groups") {
-		groups := make([]string, 0)
+		var userGroups []model.UserGroup
 
 		if client.GroupsClaimFiltered {
-			for _, userGroup := range user.UserGroups {
-				if slices.ContainsFunc(client.AllowedUserGroups, func(allowedUserGroup model.UserGroup) bool { return allowedUserGroup.ID == userGroup.ID }) {
-					groups = append(groups, userGroup.Name)
-				}
-			}
+			userGroups = getGroupsFilteredByAllowedUserGroups(user.UserGroups, client.AllowedUserGroups)
 		} else {
-			for _, group := range user.UserGroups {
-				groups = append(groups, group.Name)
-			}
-
+			userGroups = user.UserGroups
 		}
-		claims["groups"] = groups
+
+		groups := make([]string, len(userGroups))
+		for i, userGroup := range userGroups {
+			groups[i] = userGroup.Name
+		}
+
+		claims["groups"] = userGroups
 	}
 
 	return claims, nil
+}
+
+func getGroupsFilteredByAllowedUserGroups(userGroups []model.UserGroup, allowedUserGroups []model.UserGroup) []model.UserGroup {
+	groups := make([]model.UserGroup, 0)
+	for _, userGroup := range userGroups {
+		if slices.ContainsFunc(allowedUserGroups, func(allowedUserGroup model.UserGroup) bool { return allowedUserGroup.ID == userGroup.ID }) {
+			groups = append(groups, userGroup)
+		}
+	}
+
+	return groups
 }
