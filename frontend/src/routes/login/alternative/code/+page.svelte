@@ -32,7 +32,7 @@
 
 	// If the previous page is a Pocket ID page, go back there instead of the generic alternative login page
 	afterNavigate((e) => {
-		if (e.from?.url.pathname) {
+		if (e.from?.url?.pathname) {
 			backHref = e.from.url.pathname + e.from.url.search;
 		}
 	});
@@ -46,7 +46,7 @@
 			await userStore.setUser(user);
 
 			try {
-				goto(data.redirect);
+				await goto(data.redirect);
 			} catch {
 				error = m.invalid_redirect_url();
 			}
